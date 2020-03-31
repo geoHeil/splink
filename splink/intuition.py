@@ -61,8 +61,13 @@ def intuition_report(row_dict:dict, params:Params):
             d["value_l"] = row_dict[col_name + "_l"]
             d["value_r"] = row_dict[col_name + "_r"]
         else:
-            d["value_l"] = ", ".join([row_dict[c + "_l"] for c in pi[gk]["custom_columns_used"] ])
-            d["value_r"] = ", ".join([row_dict[c + "_r"] for c in pi[gk]["custom_columns_used"] ])
+            values_to_join_l = [row_dict[c + "_l"] for c in pi[gk]["custom_columns_used"] ]
+            values_to_join_l = [v for v in values_to_join_l if v is not None]
+            d["value_l"] = ", ".join(values_to_join_l)
+
+            values_to_join_r = [row_dict[c + "_r"] for c in pi[gk]["custom_columns_used"] ]
+            values_to_join_r = [v for v in values_to_join_r if v is not None]
+            d["value_r"] = ", ".join(values_to_join_r)
         d["num_levels"] = col_params["num_levels"]
 
         d["gamma_col_name"] = gk
