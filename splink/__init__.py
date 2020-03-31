@@ -132,9 +132,7 @@ class Splink:
         df_gammas = add_gammas(df_comparison, self.settings, self.spark)
         df_gammas.persist()
         
-        df_gammas = self.spark.sparkContext.createDataFrame(df_gammas.rdd, schema=df_gammas.schema)
-
-        
+        df_gammas = self.spark.createDataFrame(df_gammas.rdd, schema=df_gammas.schema)
 
         df_e = iterate(
             df_gammas,
