@@ -132,19 +132,28 @@ class Splink:
         df_comparison = df_comparison.repartition(500)
 
         df_gammas = add_gammas(df_comparison, self.settings, self.spark)
-        df_gammas.persist()
         
-        df_gammas = self.spark.createDataFrame(df_gammas.rdd, schema=df_gammas.schema)
+        
+        # df_gammas = self.spark.createDataFrame(df_gammas.rdd, schema=df_gammas.schema)
+
+        j_rdd = df_gammas._jdf.toJavaRDD()
+        j_schema = df_gammas._jdf.schema()
+        sql_ctx = df_gammas.sql_ctx
+        java_sql_context = sql_ctx._jsqlContext
+        new_java_df = java_sql_context.createDataFrame(j_rdd, j_schema)
+        df_gammas_new = DataFrame(new_java_df, sql_ctx)
+        
+        df_gammas_new.persist()
 
         df_e = iterate(
-            df_gammas,
+            df_gammas_new,
             self.params,
             self.settings,
             self.spark,
             compute_ll=False,
             save_state_fn=self.save_state_fn,
         )
-        df_gammas.unpersist()
+        df_gammas_new.unpersist()
         return df_e
 
     def make_term_frequency_adjustments(self, df_e: DataFrame):
