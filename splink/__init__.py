@@ -156,7 +156,7 @@ class Splink:
         # df_gammas = self.spark.createDataFrame(df_gammas.rdd, schema=df_gammas.schema)
 
         
-        df_gammas.persist()
+        df_gammas = df_gammas.persist()
 
         logger.info("after df gammas  persist")
 
