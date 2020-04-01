@@ -168,7 +168,7 @@ class Splink:
             compute_ll=False,
             save_state_fn=self.save_state_fn,
         )
-        df_gammas_new.unpersist()
+        df_gammas.unpersist()
         return df_e
 
     def make_term_frequency_adjustments(self, df_e: DataFrame):

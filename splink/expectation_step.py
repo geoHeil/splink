@@ -47,7 +47,11 @@ def run_expectation_step(df_with_gamma: DataFrame,
 
     df_with_gamma.createOrReplaceTempView("df_with_gamma")
     logger.debug(_format_sql(sql))
+    logger.info("before create gamma probs")
+
     df_with_gamma_probs = spark.sql(sql)
+
+    logger.info("completed create gamma probs")
     # df_with_gamma_probs.persist()
 
 
@@ -63,6 +67,7 @@ def run_expectation_step(df_with_gamma: DataFrame,
     logger.debug(_format_sql(sql))
     df_with_gamma_probs.createOrReplaceTempView("df_with_gamma_probs")
     df_e = spark.sql(sql)
+    logger.info("completed create df e")
 
     df_e.createOrReplaceTempView("df_e")
     return df_e

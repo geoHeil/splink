@@ -89,6 +89,7 @@ def _get_new_pi_df(df_e, spark, params):
     sql = _sql_gen_pi_df(params)
     levels = spark.sql(sql).collect()
     logger.debug(_format_sql(sql))
+    
     return [l.asDict() for l in levels]
 
 
@@ -108,12 +109,18 @@ def run_maximisation_step(df_e: DataFrame, params:Params, spark:SparkSession):
 
     df_e.createOrReplaceTempView("df_e")
     df_intermediate = spark.sql(sql)
+    logger("created df_intermediate")
     logger.debug(_format_sql(sql))
     df_intermediate.createOrReplaceTempView("df_intermediate")
     df_intermediate.persist()
+    logger("persosted df_intermediate")
 
     new_lambda = _get_new_lambda(df_e,  spark)
+    logger("completed new lambda")
     pi_df_collected = _get_new_pi_df(df_e, spark, params)
+    logger(f"length of pi df collected is {len(pi_df_collected)}")
+    logger("completed pi df collected")
 
     params._update_params(new_lambda, pi_df_collected)
     df_intermediate.unpersist()
+    logger("completed df intermediate unpersist")

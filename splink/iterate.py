@@ -45,15 +45,19 @@ def iterate(
 
     num_iterations = settings["max_iterations"]
     for i in range(num_iterations):
+        logger.info(f"starting iteration {i}")
         df_e = run_expectation_step(
             df_gammas, params, settings, spark, compute_ll=compute_ll
         )
+
+        logger.info(f"completed expectation step")
 
         # To align to the parameters in the iteration chart, LL must be computed against
         # pi and lambda pre-maximisation
         # compute_log_likelihood()
 
         run_maximisation_step(df_e, params, spark)
+        logger.info(f"completed maximisation step")
 
         logger.info(f"Iteration {i} complete")
 
