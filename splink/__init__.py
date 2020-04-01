@@ -129,6 +129,8 @@ class Splink:
 
         df_comparison = self._get_df_comparison()
 
+        df_comparison = df_comparison.repartition(500)
+
         df_gammas = add_gammas(df_comparison, self.settings, self.spark)
         df_gammas.persist()
         
