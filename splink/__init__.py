@@ -7,6 +7,10 @@ except ImportError:
     DataFrame = None
     SparkSession = None
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 from splink.settings import complete_settings_dict
 from splink.validate import validate_settings
 from splink.params import Params, load_params_from_json
@@ -127,26 +131,37 @@ class Splink:
             DataFrame: A spark dataframe including a match probability column
         """
 
+        logger.info("before df comparison")
         df_comparison = self._get_df_comparison()
+        logger.info("after df comparison")
 
-        df_comparison = df_comparison.repartition(500)
+        df_comparison = df_comparison.repartition(1000)
+        logger.info("after df comparison reparition")
 
-        df_gammas = add_gammas(df_comparison, self.settings, self.spark)
+        j_rdd = df_comparison._jdf.toJavaRDD()
+        j_schema = df_comparison._jdf.schema()
+        sql_ctx = df_comparison.sql_ctx
+        java_sql_context = sql_ctx._jsqlContext
+        new_java_df = java_sql_context.createDataFrame(j_rdd, j_schema)
+        df_comparison_new = DataFrame(new_java_df, sql_ctx)
+
+        logger.info("after df comparison new creation")
+        
+
+        df_gammas = add_gammas(df_comparison_new, self.settings, self.spark)
+
+        logger.info("after df gammas  creation")
         
         
         # df_gammas = self.spark.createDataFrame(df_gammas.rdd, schema=df_gammas.schema)
 
-        j_rdd = df_gammas._jdf.toJavaRDD()
-        j_schema = df_gammas._jdf.schema()
-        sql_ctx = df_gammas.sql_ctx
-        java_sql_context = sql_ctx._jsqlContext
-        new_java_df = java_sql_context.createDataFrame(j_rdd, j_schema)
-        df_gammas_new = DataFrame(new_java_df, sql_ctx)
         
-        df_gammas_new.persist()
+        df_gammas.persist()
+
+        logger.info("after df gammas  persist")
 
         df_e = iterate(
-            df_gammas_new,
+            df_gammas,
             self.params,
             self.settings,
             self.spark,
