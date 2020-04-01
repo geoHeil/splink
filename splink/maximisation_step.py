@@ -110,7 +110,7 @@ def run_maximisation_step(df_e: DataFrame, params:Params, spark:SparkSession):
     df_e.createOrReplaceTempView("df_e")
     df_intermediate = spark.sql(sql)
     logger.info("created df_intermediate")
-    logger.info.debug(_format_sql(sql))
+    logger.debug(_format_sql(sql))
     df_intermediate.createOrReplaceTempView("df_intermediate")
     df_intermediate.persist()
     logger.info("persosted df_intermediate")
